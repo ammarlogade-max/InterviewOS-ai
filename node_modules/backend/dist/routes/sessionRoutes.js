@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const multer_1 = __importDefault(require("multer"));
+const asyncHandler_1 = require("../middleware/asyncHandler");
+const sessionController_1 = require("../controllers/sessionController");
+const uploadController_1 = require("../controllers/uploadController");
+const router = (0, express_1.Router)();
+const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024 } });
+router.post("/sessions", (0, asyncHandler_1.asyncHandler)(sessionController_1.createSession));
+router.post("/resume/parse-pdf", upload.single("resume"), (0, asyncHandler_1.asyncHandler)(uploadController_1.parseResumePdf));
+router.post("/sessions/:id/analyze", (0, asyncHandler_1.asyncHandler)(sessionController_1.analyzeSession));
+router.post("/sessions/:id/next-question", (0, asyncHandler_1.asyncHandler)(sessionController_1.nextQuestion));
+router.post("/sessions/:id/answer", (0, asyncHandler_1.asyncHandler)(sessionController_1.submitAnswer));
+router.post("/sessions/:id/terminate", (0, asyncHandler_1.asyncHandler)(sessionController_1.terminateInterview));
+router.get("/sessions/:id/report", (0, asyncHandler_1.asyncHandler)(sessionController_1.getReport));
+exports.default = router;

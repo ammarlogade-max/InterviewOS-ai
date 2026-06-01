@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SessionState {
+  START
+  RESUME_ANALYSIS
+  JD_ANALYSIS
+  INTRODUCTION
+  TECHNICAL_ROUND
+  BEHAVIORAL_ROUND
+  FOLLOW_UP_ROUND
+  EVALUATION
+  TERMINATED
+  FINAL_REPORT
+}
+
+model Session {
+  id                String       @id @default(uuid())
+  candidateName     String?
+  role              String
+  state             SessionState @default(START)
+  currentDifficulty Difficulty   @default(MEDIUM)
+  readinessScore    Float        @default(0)
+  weakAnswerCount   Int          @default(0)
+  timeoutCount      Int          @default(0)
+  isTerminated      Boolean      @default(false)
+  terminationReason String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  questions         Question[]
+  answers           Answer[]
+  report            Report?
+
+  @@index([createdAt])
+}
+
+model Question {
+  id          String     @id @default(uuid())
+  sessionId   String
+  prompt      String
+  category    String
+  difficulty  Difficulty
+  round       String
+  orderIndex  Int
+  createdAt   DateTime   @default(now())
+  session     Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+
+  @@index([sessionId, orderIndex])
+}
+
+model Answer {
+  id             String   @id @default(uuid())
+  sessionId      String
+  questionId     String
+  content        String
+  latencySeconds Int
+  timedOut       Boolean  @default(false)
+  score          Float    @default(0)
+  feedback       String?
+  createdAt      DateTime @default(now())
+  session        Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model Report {
+  id               String   @id @default(uuid())
+  sessionId         String   @unique
+  summary           String
+  strengths         String[]
+  weaknesses        String[]
+  recommendations   String[]
+  category          String
+  scoreBreakdown    Json
+  createdAt         DateTime @default(now())
+  session           Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
