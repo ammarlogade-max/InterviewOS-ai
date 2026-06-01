@@ -1,4 +1,4 @@
-﻿# InterviewOS AI
+# InterviewOS AI
 
 Adaptive AI Interview Intelligence Platform for high-pressure mock interviews, readiness scoring, and recruiter-style feedback.
 
@@ -9,7 +9,29 @@ Built for hackathon demos where engineering depth, adaptive logic, and polished 
 
 ## Architecture Diagram
 ```mermaid
+flowchart TD
+    A[Frontend - React Vite TS] --> B[Backend API - Express TS]
+    B --> C[Interview Engine]
+    C --> D[Adaptive Difficulty]
+    C --> E[Scoring Engine]
+    C --> F[Answer Quality Validation]
+    B --> G[Groq API - llama-3.3-70b-versatile]
+    B --> H[Prisma ORM]
+    H --> I[Neon PostgreSQL]
+    B --> J[PDF Resume Parser]
+```
 
+## Deployment Architecture
+```mermaid
+flowchart TD
+    FE[Frontend - Vite React] -->|API calls| BE[Backend - Express TS]
+    BE -->|question generation / scoring| AI[Groq API]
+    BE -->|ORM access| DB[Neon PostgreSQL]
+    DB -->|migrations| Prisma[Prisma]
+    FE -->|build/deploy| Vercel[Vercel]
+    BE -->|deploy| Host[Railway / Render]
+    classDef cloud fill:#1f2937,stroke:#0f172a,color:#d1d5db;
+    class Vercel,Host,AI,DB cloud;
 ```
 
 ## Feature Breakdown
@@ -31,6 +53,19 @@ Built for hackathon demos where engineering depth, adaptive logic, and polished 
 5. Adaptive engine raises/lowers difficulty from performance trends.
 6. Weak patterns/timeouts can trigger structured termination.
 7. Final report and readiness dashboard are generated.
+
+```mermaid
+flowchart TD
+    A[Candidate submits resume + JD] --> B[Create session + analyze context]
+    B --> C[Generate question]
+    C --> D[Candidate answers under timer]
+    D --> E[Evaluate with Groq AI]
+    E --> F[Apply quality penalties]
+    F --> G[Compute readiness score]
+    G --> H[Adapt difficulty or terminate]
+    H -->|continue| C
+    H -->|stop| I[Final dashboard + report]
+```
 
 ## AI Evaluation Engine
 The evaluator combines two layers:
@@ -167,6 +202,18 @@ GROQ_MODEL="llama-3.3-70b-versatile"
 - Use Neon project branch for prod.
 - Run migration once against production DB.
 
+### Deployment Workflow
+```mermaid
+flowchart LR
+    Repo[GitHub repo] --> Vercel[Frontend deploy]
+    Repo --> Render[Backend deploy]
+    Render -->|DATABASE_URL| Neon[Neon PostgreSQL]
+    Render -->|GROQ_API_KEY| Groq[Groq API]
+    Vercel -->|API requests| Render
+    classDef service fill:#111827,stroke:#374151,color:#f9fafb;
+    class Repo,Vercel,Render,Neon,Groq service;
+```
+
 
 Markdown example:
 ```md
@@ -175,13 +222,8 @@ Markdown example:
 
 ## Demo Video
 Add your demo link here:
--https://www.loom.com/share/52ea829aa6dd4ba389591b159c05edac
+- https://www.loom.com/share/52ea829aa6dd4ba389591b159c05edac
 
-Suggested demo sequence:
-1. Resume + JD input
-2. Adaptive interview in progress
-3. Weak answer penalty behavior
-4. Dashboard + final verdict
 
 ## API Overview
 ### Session
