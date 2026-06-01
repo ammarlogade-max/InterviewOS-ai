@@ -7,6 +7,11 @@ InterviewOS AI is a full-stack mock interview platform that simulates realistic 
 
 Built for hackathon demos where engineering depth, adaptive logic, and polished UX matter as much as visuals.
 
+## Live Deployment
+- Frontend: https://interview-os-ai-frontend.vercel.app/
+- Backend API: https://interviewos-ai.onrender.com
+
+
 ## Architecture Diagram
 ```mermaid
 flowchart TD
