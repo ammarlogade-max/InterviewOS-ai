@@ -6,6 +6,8 @@ export type Session = {
   readinessScore: number;
   isTerminated: boolean;
   terminationReason?: string;
+  weakAnswerCount?: number;
+  timeoutCount?: number;
 };
 
 export type Question = {
