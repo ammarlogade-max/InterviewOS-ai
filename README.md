@@ -9,16 +9,7 @@ Built for hackathon demos where engineering depth, adaptive logic, and polished 
 
 ## Architecture Diagram
 ```mermaid
-flowchart TD
-    A[Frontend - React Vite TS] --> B[Backend API - Express TS]
-    B --> C[Interview Engine]
-    C --> D[Adaptive Difficulty]
-    C --> E[Scoring Engine]
-    C --> F[Answer Quality Validation]
-    B --> G[Groq API - llama-3.3-70b-versatile]
-    B --> H[Prisma ORM]
-    H --> I[Neon PostgreSQL]
-    B --> J[PDF Resume Parser]
+
 ```
 
 ## Feature Breakdown
@@ -176,12 +167,6 @@ GROQ_MODEL="llama-3.3-70b-versatile"
 - Use Neon project branch for prod.
 - Run migration once against production DB.
 
-## Screenshots
-Add your screenshots here:
-- `docs/screenshots/landing.png`
-- `docs/screenshots/interview-setup.png`
-- `docs/screenshots/live-interview.png`
-- `docs/screenshots/dashboard.png`
 
 Markdown example:
 ```md
@@ -190,7 +175,7 @@ Markdown example:
 
 ## Demo Video
 Add your demo link here:
-- YouTube/Loom: `https://your-demo-link`
+-https://www.loom.com/share/52ea829aa6dd4ba389591b159c05edac
 
 Suggested demo sequence:
 1. Resume + JD input
