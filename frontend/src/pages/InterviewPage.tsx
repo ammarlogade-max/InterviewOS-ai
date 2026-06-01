@@ -1,9 +1,10 @@
-﻿import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { api } from "../services/api";
 import { useCountdown } from "../hooks/useCountdown";
 import type { Question, Session } from "../types/interview";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import AdaptiveInsight from "../components/AdaptiveInsight";
 import {
   BriefcaseBusiness,
   ClipboardList,
@@ -196,12 +197,6 @@ export default function InterviewPage() {
             )}
           </div>
           <textarea className="input-glass" rows={4} value={resumeText} onChange={(e) => setResumeText(e.target.value)} placeholder="Paste resume content for AI analysis" />
-          {resumeText && (
-            <div className="glass rounded-xl p-3">
-              <p className="text-xs text-slate-400 mb-1">Extracted Resume Preview</p>
-              <p className="text-xs text-slate-300 leading-relaxed max-h-24 overflow-auto">{resumeText.slice(0, 500)}{resumeText.length > 500 ? "..." : ""}</p>
-            </div>
-          )}
 
           <label className="text-sm text-slate-300 flex items-center gap-2"><ClipboardList size={16} /> Target Job Description</label>
           <textarea className="input-glass" rows={4} value={jdText} onChange={(e) => setJdText(e.target.value)} placeholder="Paste JD text to calibrate interview" />
@@ -213,6 +208,12 @@ export default function InterviewPage() {
       {session && question && (
         <div className="relative z-10 grid lg:grid-cols-[1fr_300px] gap-4">
           <div className="space-y-4">
+            <AdaptiveInsight
+              difficulty={session.currentDifficulty}
+              weakSignals={session.weakAnswerCount || 0}
+              timeouts={session.timeoutCount || 0}
+            />
+
             <div className="glass rounded-2xl p-4 md:p-5">
               <div className="flex flex-wrap justify-between items-center gap-2 text-sm">
                 <span className="text-slate-200">Question {questionNumber} of {TOTAL_QUESTIONS_GUIDE}</span>
@@ -226,7 +227,10 @@ export default function InterviewPage() {
                 <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-[#46a6ff] to-[#2df7c4]" style={{ width: `${progress}%`, transition: "width 500ms ease" }} />
                 </div>
-                <p className="mt-2 text-xs text-slate-400">Interview Progress</p>
+                <div className="mt-2 flex justify-between text-xs text-slate-400">
+                  <span>Interview Progress</span>
+                  <span>{Math.round(progress)}% Complete</span>
+                </div>
               </div>
 
               <div className="mt-4 grid sm:grid-cols-3 gap-2 text-sm">
@@ -241,7 +245,10 @@ export default function InterviewPage() {
                 <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                   <div className={`h-full ${danger ? "bg-red-400" : "bg-[#2df7c4]"}`} style={{ width: `${timerPercent}%`, transition: "width 1s linear" }} />
                 </div>
-                <p className={`mt-2 text-sm ${danger ? "text-red-300" : "text-slate-300"}`}>{left}s remaining</p>
+                <div className="mt-2 flex justify-between items-center">
+                  <p className={`text-sm ${danger ? "text-red-300" : "text-slate-300"}`}>{left}s remaining</p>
+                  <p className="text-xs text-slate-400">{Math.max(0, TOTAL_QUESTIONS_GUIDE - questionNumber)} questions remaining</p>
+                </div>
               </div>
             </div>
 
@@ -260,31 +267,21 @@ export default function InterviewPage() {
             <div className="space-y-2 max-h-[420px] overflow-auto pr-1">
               {timeline.length === 0 && <p className="text-sm text-slate-400">No completed questions yet.</p>}
               {timeline.map((item, idx) => (
-                <div key={`${item.q}-${idx}`} className="rounded-xl bg-[#0c1427] px-3 py-2 text-sm">
-                  <p className="text-slate-200">Q{item.q} • {item.category}</p>
-                  <p className="text-slate-400">{item.difficulty}{typeof item.score === "number" ? ` • Score ${item.score}` : ""}</p>
+                <div key={`${item.q}-${idx}`} className="rounded-xl bg-[#0c1427] px-3 py-3 border border-white/5">
+                  <div className="flex justify-between items-center text-xs text-slate-400">
+                    <span>Q{item.q}</span>
+                    <span>{item.difficulty}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-200">{item.category}</p>
+                  {typeof item.score === "number" && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-[#7ef7dc]">
+                      <CheckCircle2 size={12} /> Score: {item.score}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </aside>
-        </div>
-      )}
-
-      {session && !question && !startingInterview && session.isTerminated && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 glass p-8 rounded-2xl mt-4 text-center">
-          <CheckCircle2 className="mx-auto text-[#2df7c4]" size={44} />
-          <h3 className="text-2xl font-semibold mt-3">Interview Complete</h3>
-          <p className="text-slate-300 mt-2">Your adaptive interview session has finished. Explore your full analytics and recruiter verdict.</p>
-          <Link to={`/dashboard/${session.id}`} className="inline-block mt-5 cta-button">View Final Dashboard</Link>
-          {session.terminationReason && <p className="text-sm text-slate-400 mt-3">Completion Note: {session.terminationReason}</p>}
-        </motion.div>
-      )}
-
-      {session && !question && startingInterview && (
-        <div className="relative z-10 glass p-8 rounded-2xl mt-4 text-center">
-          <Loader2 className="mx-auto animate-spin text-[#2df7c4]" size={34} />
-          <h3 className="text-xl font-semibold mt-3">Preparing Interview...</h3>
-          <p className="text-slate-300 mt-2">Analyzing profile and generating your first adaptive question.</p>
         </div>
       )}
     </div>
